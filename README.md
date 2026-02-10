@@ -19,7 +19,7 @@ with all errors.
 1. **Clone the repository** (or add it as a dependency / submodule):
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/sbmlteam/vue3-sbml-validator
    cd vue3-sbml-validator
    ```
 
