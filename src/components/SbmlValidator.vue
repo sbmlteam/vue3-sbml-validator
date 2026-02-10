@@ -6,35 +6,6 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <section class="options-section">
-      <button
-        type="button"
-        class="options-toggle"
-        :aria-expanded="!optionsCollapsed"
-        @click="optionsCollapsed = !optionsCollapsed"
-      >
-        <span class="options-toggle-icon" :class="{ expanded: !optionsCollapsed }">▸</span>
-        <span class="options-toggle-label">Validation options</span>
-      </button>
-      <div v-show="!optionsCollapsed" class="options-content">
-        <p class="hint">Toggle which consistency checks to run.</p>
-        <div class="options-grid">
-          <label
-            v-for="(value, key) in validationOptions"
-            :key="key"
-            class="option-label"
-          >
-            <input
-              v-model="validationOptions[key]"
-              type="checkbox"
-              class="option-checkbox"
-            />
-            <span class="option-text">{{ optionLabel(key) }}</span>
-          </label>
-        </div>
-      </div>
-    </section>
-
     <section class="input-section">
       <label class="label">SBML document</label>
       <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
@@ -46,6 +17,34 @@
         spellcheck="false"
         @input="onTextareaInput"
       />
+      <div class="options-section">
+        <button
+          type="button"
+          class="options-toggle"
+          :aria-expanded="!optionsCollapsed"
+          @click="optionsCollapsed = !optionsCollapsed"
+        >
+          <span class="options-toggle-icon" :class="{ expanded: !optionsCollapsed }">▸</span>
+          <span class="options-toggle-label">Validation options</span>
+        </button>
+        <div v-show="!optionsCollapsed" class="options-content">
+          <p class="hint">Toggle which consistency checks to run.</p>
+          <div class="options-grid">
+            <label
+              v-for="(value, key) in validationOptions"
+              :key="key"
+              class="option-label"
+            >
+              <input
+                v-model="validationOptions[key]"
+                type="checkbox"
+                class="option-checkbox"
+              />
+              <span class="option-text">{{ optionLabel(key) }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
       <div class="actions">
         <input
           ref="fileInputRef"
