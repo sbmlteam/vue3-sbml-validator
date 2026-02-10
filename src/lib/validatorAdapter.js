@@ -77,3 +77,15 @@ export async function validate(sbmlString) {
     durationMs
   }
 }
+
+/**
+ * Get the libSBML version from the validator module. Loads the module on first call.
+ * @returns {Promise<string>} Version string, or empty string if not available
+ */
+export async function getLibSBMLVersion() {
+  const mod = await getModule()
+  const fn = mod.getLibSBMLVersion
+  if (typeof fn !== 'function') return ''
+  const v = fn()
+  return v != null ? 'libSBML ' + String(v) : ''
+}

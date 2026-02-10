@@ -134,12 +134,19 @@
         </div>
       </div>
     </section>
+
+    <footer class="status-footer">
+      <span class="status-label">Library:</span>
+      <span v-if="libVersionLoading" class="status-value">Loading…</span>
+      <span v-else-if="libVersionError" class="status-value status-error">{{ libVersionError }}</span>
+      <span v-else class="status-value">{{ libVersion || '—' }}</span>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, nextTick, reactive } from 'vue'
-import { validate as validateSbml, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
+import { ref, computed, nextTick, reactive, onMounted } from 'vue'
+import { validate as validateSbml, getLibSBMLVersion, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
 
 const validationOptions = reactive(validationOptionsRef)
 const optionsCollapsed = ref(true)
@@ -154,6 +161,9 @@ const validating = ref(false)
 const result = ref(null)
 const validatedDocument = ref('')
 const showWarnings = ref(true)
+const libVersion = ref('')
+const libVersionLoading = ref(true)
+const libVersionError = ref('')
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -259,6 +269,18 @@ function snippetForError(err) {
   const lineIndex = Math.max(0, Number(err.line) - 1)
   return lines[lineIndex] ?? ''
 }
+
+onMounted(async () => {
+  libVersionLoading.value = true
+  libVersionError.value = ''
+  try {
+    libVersion.value = await getLibSBMLVersion()
+  } catch (e) {
+    libVersionError.value = e?.message || 'Failed to load version'
+  } finally {
+    libVersionLoading.value = false
+  }
+})
 
 function optionLabel(key) {
   return key
@@ -669,5 +691,22 @@ async function runValidation() {
 
 .line-content {
   white-space: pre;
+}
+
+.status-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+  color: #666;
+}
+
+.status-label {
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+
+.status-value.status-error {
+  color: #c00;
 }
 </style>
