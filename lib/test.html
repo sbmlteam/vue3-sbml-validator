@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBML Validator</title>
+</head>
+<body>
+    <h1>SBML Validator</h1>
+    <textarea id="sbmlData" placeholder="Paste your SBML data here..." style="width: 100%; height: 300px;"></textarea>
+    <button id="validateBtn">Validate</button>
+    <div id="result"></div>
+
+        <script type="module">
+            async function initValidator() {
+                console.log('Initializing SBML Validator');
+                window.addEventListener('error', e => console.error('window error', e.message, e.error));
+                window.addEventListener('unhandledrejection', e => console.error('unhandledrejection', e.reason));
+
+                let createCpsModule;
+                try {
+                    const mod = await import('./sbml_validator.mjs');
+                    createCpsModule = mod.default;
+                    console.log('Imported sbml_validator.mjs', !!createCpsModule);
+                } catch (e) {
+                    console.error('Failed to import sbml_validator.mjs', e);
+                    document.getElementById('result').textContent = 'Import failed: ' + e;
+                    return;
+                }
+
+                // createCpsModule may return Module or a Promise that resolves to Module
+                let maybeModule;
+                try {
+                    maybeModule = createCpsModule({ locateFile(path) { return path; } });
+                } catch (e) {
+                    console.error('createCpsModule threw synchronously', e);
+                    document.getElementById('result').textContent = 'createCpsModule threw: ' + e;
+                    return;
+                }
+                
+                const Module = await (maybeModule && typeof maybeModule.then === 'function' ? maybeModule : Promise.resolve(maybeModule));
+
+                const validateSBMLString = Module.validateSBMLString;
+                if (typeof validateSBMLString !== 'function') {
+                    document.getElementById('result').textContent = 'Validator not available';
+                    return;
+                }
+
+                document.getElementById('validateBtn').addEventListener('click', function() {
+                    console.log('Validate button clicked');
+                    const data = document.getElementById('sbmlData').value;
+                    console.log('Validating SBML data:', data);
+                    const raw = validateSBMLString(data);
+                    console.log('Validation result:', raw);
+                    let output;
+                    if (typeof raw === 'string') {
+                        try { output = JSON.stringify(JSON.parse(raw), null, 2); } catch { output = raw; }
+                    } else {
+                        output = JSON.stringify(raw, null, 2);
+                    }
+                    document.getElementById('result').textContent = output;
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', initValidator);
+        </script>
+</body>
+</html>
