@@ -57,7 +57,18 @@
               {{ (err.severity || 'error').charAt(0).toUpperCase() + (err.severity || 'error').slice(1) }}
             </span>
             <span class="error-location">
-              Line {{ err.line != null ? err.line : '?' }}{{ err.column != null ? ` Column ${err.column}` : '' }}:
+              <template v-if="err.line != null">
+                <a
+                  :href="'#doc-line-' + err.line"
+                  class="error-location-link"
+                  @click.prevent="scrollToLine(err.line)"
+                >
+                  Line {{ err.line }}{{ err.column != null ? ` Column ${err.column}` : '' }}
+                </a>:
+              </template>
+              <template v-else>
+                Line ?{{ err.column != null ? ` Column ${err.column}` : '' }}:
+              </template>
             </span>
             <p class="error-message">{{ err.message }}</p>
             <div v-if="snippetForError(err)" class="error-snippet">
@@ -72,6 +83,7 @@
         <div
           v-for="(line, i) in documentLines"
           :key="i"
+          :id="'doc-line-' + (i + 1)"
           class="document-line"
           :class="{ 'line-error': errorLineSet.has(i + 1) }"
         >
@@ -142,6 +154,11 @@ const errorLineSet = computed(() => {
   }
   return set
 })
+
+function scrollToLine(lineNum) {
+  const el = document.getElementById('doc-line-' + lineNum)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
 
 function snippetForError(err) {
   const doc = validatedDocument.value || ''
@@ -336,6 +353,17 @@ async function runValidation() {
 
 .error-location {
   font-weight: 600;
+}
+
+.error-location-link {
+  color: #0066cc;
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+
+.error-location-link:hover {
+  text-decoration: underline;
 }
 
 .error-message {
