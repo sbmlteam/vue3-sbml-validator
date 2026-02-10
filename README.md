@@ -13,3 +13,17 @@ a utf-8 data string and returns a dictionary like:
 ```
 
 with all errors. 
+
+### Old validator
+
+This component replaces the old validator, in which one could upload sbml files by pasting SBML, or uploading files, or pointing to URLS: 
+
+![Upload](./docs/old_validator_input.png)
+
+specifying a couple of options. After validation the results would be displayed like so:
+
+* status valid | warning | invalid
+* list of errors with except of the reported line, with link to full document below
+* listing of all lines of the SBML file
+
+![Result](./docs/old_validator_result.png)
