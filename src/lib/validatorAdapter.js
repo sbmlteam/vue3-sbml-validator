@@ -2,6 +2,18 @@ const LIB_BASE = '/lib/'
 
 let modulePromise = null
 
+let validationOptions = {
+    "LIBSBML_CAT_GENERAL_CONSISTENCY": true,
+    "LIBSBML_CAT_IDENTIFIER_CONSISTENCY": true,
+    "LIBSBML_CAT_UNITS_CONSISTENCY": false,
+    "LIBSBML_CAT_MATHML_CONSISTENCY": true,
+    "LIBSBML_CAT_SBO_CONSISTENCY": true,
+    "LIBSBML_CAT_OVERDETERMINED_MODEL": true,
+    "LIBSBML_CAT_MODELING_PRACTICE": true,
+    "LIBSBML_CAT_STRICT_UNITS_CONSISTENCY": false,
+};
+
+
 async function loadValidatorFactory() {
   const res = await fetch(LIB_BASE + 'sbml_validator.js')
   if (!res.ok) throw new Error('Failed to load SBML validator script.')
@@ -55,7 +67,7 @@ export async function validate(sbmlString) {
   let errors = raw
   if (typeof raw === 'string') {
     try {
-      errors = JSON.parse(raw)
+      errors = JSON.parse(raw, JSON.stringify(validationOptions))
     } catch {
       errors = [{ message: raw, severity: 'error' }]
     }

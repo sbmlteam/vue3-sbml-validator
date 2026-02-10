@@ -50,7 +50,7 @@
                     console.log('Validate button clicked');
                     const data = document.getElementById('sbmlData').value;
                     console.log('Validating SBML data:', data);
-                    const raw = validateSBMLString(data);
+                    const raw = validateSBMLString(data, "");
                     console.log('Validation result:', raw);
                     let output;
                     if (typeof raw === 'string') {
