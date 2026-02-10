@@ -35,6 +35,8 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Build
         shell: bash
+        env:
+          BUILD_FOR_HUGO: 1
         run: |
             npm install
             npm run build
