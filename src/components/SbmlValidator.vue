@@ -40,9 +40,9 @@
 
       <div
         class="status-banner"
-        :class="result.errors.length > 0 ? 'status-invalid' : 'status-valid'"
+        :class="statusBannerClass"
       >
-        {{ result.errors.length > 0 ? 'This document is not valid SBML!' : 'This document is valid SBML.' }}
+        {{ statusBannerText }}
       </div>
 
       <template v-if="result.errors.length > 0">
@@ -117,6 +117,28 @@ const validateButtonLabel = computed(() => {
 })
 
 const hasResult = computed(() => result.value !== null)
+
+const hasValidationErrors = computed(() => {
+  if (!result.value || !result.value.errors.length) return false
+  return result.value.errors.some(e => (e.severity || 'error') !== 'warning')
+})
+
+const hasOnlyWarnings = computed(() => {
+  if (!result.value || !result.value.errors.length) return false
+  return result.value.errors.every(e => (e.severity || 'error') === 'warning')
+})
+
+const statusBannerClass = computed(() => {
+  if (hasValidationErrors.value) return 'status-invalid'
+  if (hasOnlyWarnings.value) return 'status-warning'
+  return 'status-valid'
+})
+
+const statusBannerText = computed(() => {
+  if (hasValidationErrors.value) return 'This document is not valid SBML!'
+  if (hasOnlyWarnings.value) return 'This document is valid SBML but contains warnings.'
+  return 'This document is valid SBML.'
+})
 
 const formattedDuration = computed(() => {
   if (result.value == null) return ''
@@ -308,6 +330,11 @@ async function runValidation() {
 
 .status-valid {
   background: #0a0;
+  color: white;
+}
+
+.status-warning {
+  background: #e68a00;
   color: white;
 }
 
