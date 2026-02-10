@@ -1,14 +1,21 @@
 <template>
-  <div class="sbml-validator">
+  <div
+    class="sbml-validator"
+    :class="{ 'is-dragging': isDragging }"
+    @dragover.prevent="onDragOver"
+    @dragleave.prevent="onDragLeave"
+    @drop.prevent="onDrop"
+  >
     <section class="input-section">
       <label class="label">SBML document</label>
-      <p class="hint">Paste SBML below or upload a file.</p>
+      <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
       <textarea
         v-model="sbmlInput"
         class="textarea"
         rows="12"
         placeholder="Paste SBML XML here..."
         spellcheck="false"
+        @input="onTextareaInput"
       />
       <div class="actions">
         <input
@@ -36,6 +43,7 @@
 
     <section v-if="hasResult" class="results-section">
       <h2 class="results-heading">Results:</h2>
+      <p class="model-title">Model: {{ modelTitle }}</p>
       <p class="validation-time">Time taken for validation: {{ formattedDuration }}</p>
 
       <div
@@ -102,10 +110,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { validate as validateSbml } from '../lib/validatorAdapter.js'
 
 const sbmlInput = ref('')
+const isDragging = ref(false)
+const modelTitle = ref('Pasted SBML')
 const fileInputRef = ref(null)
 const loadError = ref('')
 const validationError = ref('')
@@ -219,6 +229,50 @@ function snippetForError(err) {
   return lines[lineIndex] ?? ''
 }
 
+function isAcceptableFile(file) {
+  if (!file || typeof file.name !== 'string') return false
+  const name = file.name.toLowerCase()
+  const type = (file.type || '').toLowerCase()
+  return (
+    name.endsWith('.xml') ||
+    name.endsWith('.sbml') ||
+    type === 'text/xml' ||
+    type === 'application/xml'
+  )
+}
+
+function onDragOver() {
+  isDragging.value = true
+}
+
+function onDragLeave(ev) {
+  if (!ev.currentTarget.contains(ev.relatedTarget)) {
+    isDragging.value = false
+  }
+}
+
+async function onDrop(ev) {
+  isDragging.value = false
+  const files = ev.dataTransfer?.files
+  if (!files?.length) return
+  const file = Array.from(files).find(isAcceptableFile) ?? files[0]
+  const text = await readFileAsText(file)
+  if (text == null) return
+  modelTitle.value = file.name
+  sbmlInput.value = text
+  await nextTick()
+  await runValidation()
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null)
+    reader.onerror = () => resolve(null)
+    reader.readAsText(file, 'UTF-8')
+  })
+}
+
 function triggerUpload() {
   fileInputRef.value?.click()
 }
@@ -226,12 +280,17 @@ function triggerUpload() {
 function onFileSelect(ev) {
   const file = ev.target.files?.[0]
   if (!file) return
+  modelTitle.value = file.name
   const reader = new FileReader()
   reader.onload = () => {
     sbmlInput.value = typeof reader.result === 'string' ? reader.result : ''
   }
   reader.readAsText(file, 'UTF-8')
   ev.target.value = ''
+}
+
+function onTextareaInput() {
+  modelTitle.value = 'Pasted SBML'
 }
 
 async function runValidation() {
@@ -260,6 +319,14 @@ async function runValidation() {
 .sbml-validator {
   font-family: system-ui, sans-serif;
   font-size: 14px;
+  position: relative;
+  transition: outline 0.15s ease, background 0.15s ease;
+}
+
+.sbml-validator.is-dragging {
+  outline: 2px dashed #0066cc;
+  outline-offset: -2px;
+  background: #e6f2ff;
 }
 
 .label {
@@ -337,6 +404,12 @@ async function runValidation() {
 .results-heading {
   font-size: 1.1rem;
   margin: 0 0 0.25rem 0;
+}
+
+.model-title {
+  margin: 0 0 0.25rem 0;
+  color: #555;
+  font-size: 0.95rem;
 }
 
 .validation-time {
