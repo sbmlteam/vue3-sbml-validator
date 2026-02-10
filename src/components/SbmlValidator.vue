@@ -7,21 +7,31 @@
     @drop.prevent="onDrop"
   >
     <section class="options-section">
-      <label class="label">Validation options</label>
-      <p class="hint">Toggle which consistency checks to run.</p>
-      <div class="options-grid">
-        <label
-          v-for="(value, key) in validationOptions"
-          :key="key"
-          class="option-label"
-        >
-          <input
-            v-model="validationOptions[key]"
-            type="checkbox"
-            class="option-checkbox"
-          />
-          <span class="option-text">{{ optionLabel(key) }}</span>
-        </label>
+      <button
+        type="button"
+        class="options-toggle"
+        :aria-expanded="!optionsCollapsed"
+        @click="optionsCollapsed = !optionsCollapsed"
+      >
+        <span class="options-toggle-icon" :class="{ expanded: !optionsCollapsed }">▸</span>
+        <span class="options-toggle-label">Validation options</span>
+      </button>
+      <div v-show="!optionsCollapsed" class="options-content">
+        <p class="hint">Toggle which consistency checks to run.</p>
+        <div class="options-grid">
+          <label
+            v-for="(value, key) in validationOptions"
+            :key="key"
+            class="option-label"
+          >
+            <input
+              v-model="validationOptions[key]"
+              type="checkbox"
+              class="option-checkbox"
+            />
+            <span class="option-text">{{ optionLabel(key) }}</span>
+          </label>
+        </div>
       </div>
     </section>
 
@@ -133,6 +143,7 @@ import { ref, computed, nextTick, reactive } from 'vue'
 import { validate as validateSbml, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
 
 const validationOptions = reactive(validationOptionsRef)
+const optionsCollapsed = ref(true)
 
 const sbmlInput = ref('')
 const isDragging = ref(false)
@@ -362,6 +373,40 @@ async function runValidation() {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #eee;
+}
+
+.options-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.25rem 0;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+
+.options-toggle:hover {
+  color: #0066cc;
+}
+
+.options-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 12px;
+  color: #666;
+}
+
+.options-toggle-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.options-content {
+  margin-top: 0.5rem;
 }
 
 .options-grid {
