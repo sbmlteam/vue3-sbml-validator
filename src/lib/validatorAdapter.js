@@ -62,12 +62,12 @@ export async function validate(sbmlString) {
   if (typeof validateSBMLString !== 'function') {
     throw new Error('Validator module does not expose validateSBMLString')
   }
-  const raw = validateSBMLString(sbmlString)
+  const raw = validateSBMLString(sbmlString, JSON.stringify(validationOptions))
   const durationMs = performance.now() - start
   let errors = raw
   if (typeof raw === 'string') {
     try {
-      errors = JSON.parse(raw, JSON.stringify(validationOptions))
+      errors = JSON.parse(raw)
     } catch {
       errors = [{ message: raw, severity: 'error' }]
     }
