@@ -2,7 +2,7 @@ const LIB_BASE = '/lib/'
 
 let modulePromise = null
 
-let validationOptions = {
+export const validationOptions = {
     "LIBSBML_CAT_GENERAL_CONSISTENCY": true,
     "LIBSBML_CAT_IDENTIFIER_CONSISTENCY": true,
     "LIBSBML_CAT_UNITS_CONSISTENCY": false,

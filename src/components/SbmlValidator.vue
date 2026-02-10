@@ -6,6 +6,25 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
+    <section class="options-section">
+      <label class="label">Validation options</label>
+      <p class="hint">Toggle which consistency checks to run.</p>
+      <div class="options-grid">
+        <label
+          v-for="(value, key) in validationOptions"
+          :key="key"
+          class="option-label"
+        >
+          <input
+            v-model="validationOptions[key]"
+            type="checkbox"
+            class="option-checkbox"
+          />
+          <span class="option-text">{{ optionLabel(key) }}</span>
+        </label>
+      </div>
+    </section>
+
     <section class="input-section">
       <label class="label">SBML document</label>
       <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
@@ -110,8 +129,10 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { validate as validateSbml } from '../lib/validatorAdapter.js'
+import { ref, computed, nextTick, reactive } from 'vue'
+import { validate as validateSbml, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
+
+const validationOptions = reactive(validationOptionsRef)
 
 const sbmlInput = ref('')
 const isDragging = ref(false)
@@ -229,6 +250,14 @@ function snippetForError(err) {
   return lines[lineIndex] ?? ''
 }
 
+function optionLabel(key) {
+  return key
+    .replace(/^LIBSBML_CAT_/, '')
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase())
+}
+
 function isAcceptableFile(file) {
   if (!file || typeof file.name !== 'string') return false
   const name = file.name.toLowerCase()
@@ -327,6 +356,37 @@ async function runValidation() {
   outline: 2px dashed #0066cc;
   outline-offset: -2px;
   background: #e6f2ff;
+}
+
+.options-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-weight: normal;
+  user-select: none;
+}
+
+.option-checkbox {
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.option-text {
+  font-size: 13px;
 }
 
 .label {
