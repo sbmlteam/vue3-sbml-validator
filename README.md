@@ -14,6 +14,41 @@ a utf-8 data string and returns a dictionary like:
 
 with all errors. 
 
+### Installation
+
+1. **Clone the repository** (or add it as a dependency / submodule):
+
+   ```bash
+   git clone <repository-url>
+   cd vue3-sbml-validator
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+   Then open the URL shown in the terminal (typically `http://localhost:5173`).
+
+4. **Build for production:**
+
+   ```bash
+   npm run build
+   ```
+
+   Output goes to `dist/`. Use `npm run preview` to serve the built app locally.
+
+**Note:** The validator relies on the precompiled Emscripten library in `./lib/sbml_validator.js` (and any associated `.wasm` files). Ensure the `lib/` directory is present and served correctly when running or deploying the app.
+
+
+
 ### Old validator
 
 This component replaces the old validator, in which one could upload sbml files by pasting SBML, or uploading files, or pointing to URLS: 
@@ -27,3 +62,4 @@ specifying a couple of options. After validation the results would be displayed 
 * listing of all lines of the SBML file
 
 ![Result](./docs/old_validator_result.png)
+
