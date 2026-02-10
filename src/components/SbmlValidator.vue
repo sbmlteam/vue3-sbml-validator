@@ -46,9 +46,15 @@
       </div>
 
       <template v-if="result.errors.length > 0">
-        <h3 class="error-count">{{ errorCountLabel }}</h3>
+        <div class="error-list-header">
+          <h3 class="error-count">{{ filteredErrorCountLabel }}</h3>
+          <label v-if="hasWarningsInResult" class="filter-warnings-label">
+            <input v-model="showWarnings" type="checkbox" class="filter-warnings-checkbox" />
+            Show warnings
+          </label>
+        </div>
         <ol class="error-list">
-          <li v-for="(err, idx) in result.errors" :key="idx" class="error-item">
+          <li v-for="(err, idx) in filteredErrors" :key="idx" class="error-item">
             <span class="error-index">{{ idx + 1 }}.</span>
             <span
               class="severity-badge"
@@ -106,6 +112,7 @@ const validationError = ref('')
 const validating = ref(false)
 const result = ref(null)
 const validatedDocument = ref('')
+const showWarnings = ref(true)
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -151,11 +158,33 @@ const formattedDuration = computed(() => {
   return `${pad(h)}:${pad(m)}:${pad(s)}.${String(frac).padStart(3, '0')}`
 })
 
+const hasWarningsInResult = computed(() => {
+  if (!result.value || !result.value.errors.length) return false
+  return result.value.errors.some(e => (e.severity || 'error') === 'warning')
+})
+
+const filteredErrors = computed(() => {
+  if (!result.value || !result.value.errors.length) return []
+  if (showWarnings.value) return result.value.errors
+  return result.value.errors.filter(e => (e.severity || 'error') !== 'warning')
+})
+
 const errorCountLabel = computed(() => {
   if (!result.value || !result.value.errors.length) return ''
   const n = result.value.errors.length
-  const warnings = result.value.errors.filter(e => e.severity === 'warning').length
+  const warnings = result.value.errors.filter(e => (e.severity || 'error') === 'warning').length
   const errors = n - warnings
+  const parts = []
+  if (errors) parts.push(`${errors} Error${errors !== 1 ? 's' : ''}`)
+  if (warnings) parts.push(`${warnings} Warning${warnings !== 1 ? 's' : ''}`)
+  return parts.join(', ')
+})
+
+const filteredErrorCountLabel = computed(() => {
+  if (!result.value || !result.value.errors.length) return ''
+  const list = filteredErrors.value
+  const warnings = list.filter(e => (e.severity || 'error') === 'warning').length
+  const errors = list.length - warnings
   const parts = []
   if (errors) parts.push(`${errors} Error${errors !== 1 ? 's' : ''}`)
   if (warnings) parts.push(`${warnings} Warning${warnings !== 1 ? 's' : ''}`)
@@ -338,9 +367,30 @@ async function runValidation() {
   color: white;
 }
 
+.error-list-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
 .error-count {
   font-size: 1rem;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+}
+
+.filter-warnings-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-weight: normal;
+  user-select: none;
+}
+
+.filter-warnings-checkbox {
+  cursor: pointer;
 }
 
 .error-list {
