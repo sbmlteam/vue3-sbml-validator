@@ -93,6 +93,10 @@
             <input v-model="showWarnings" type="checkbox" class="filter-warnings-checkbox" />
             Show warnings
           </label>
+          <label class="filter-warnings-label">
+            <input v-model="showListing" type="checkbox" class="filter-warnings-checkbox" />
+            Show listing
+          </label>
           <button
             type="button"
             class="btn btn-filter"
@@ -230,12 +234,13 @@
             <span class="error-location">
               <template v-if="err.line != null">
                 <a
+                  v-if="showListing"
                   :href="'#doc-line-' + err.line"
                   class="error-location-link"
                   @click.prevent="scrollToLine(err.line)"
                 >
                   Line {{ err.line }}{{ err.column != null ? ` Column ${err.column}` : '' }}
-                </a>:
+                </a><span v-else class="error-location-text">Line {{ err.line }}{{ err.column != null ? ` Column ${err.column}` : '' }}</span>:
               </template>
               <template v-else>
                 Line ?{{ err.column != null ? ` Column ${err.column}` : '' }}:
@@ -254,8 +259,9 @@
         </ol>
       </template>
 
-      <h3 class="document-listing-heading">Document Listing</h3>
-      <div class="document-listing">
+      <template v-if="showListing">
+        <h3 class="document-listing-heading">Document Listing</h3>
+        <div class="document-listing">
         <div
           v-for="(line, i) in documentLines"
           :key="i"
@@ -267,6 +273,7 @@
           <span class="line-content">{{ line }}</span>
         </div>
       </div>
+      </template>
     </section>
 
     <footer class="status-footer">
@@ -295,6 +302,7 @@ const validating = ref(false)
 const result = ref(null)
 const validatedDocument = ref('')
 const showWarnings = ref(true)
+const showListing = ref(true)
 const filterDialogOpen = ref(false)
 const hiddenPackages = ref([])
 const hiddenCategories = ref([])
