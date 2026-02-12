@@ -629,6 +629,9 @@ async function runValidation() {
   await new Promise(r => setTimeout(r, 0))
   try {
     result.value = await validateSbml(input)
+    if (input.split(/\r?\n/).length > 40000) {
+      showListing.value = false
+    }
   } catch (e) {
     if (e.message && e.message.includes('not loaded')) {
       loadError.value = e.message
