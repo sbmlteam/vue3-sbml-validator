@@ -3,7 +3,43 @@ const BASE = typeof import.meta !== 'undefined' && import.meta.env && import.met
   : '/'
 const LIB_BASE = BASE.replace(/\/?$/, '/') + 'lib/'
 
-let modulePromise = null
+let worker = null
+let nextId = 0
+const pending = new Map()
+
+function getWorker() {
+  if (!worker) {
+    worker = new Worker(new URL('./validatorWorker.js', import.meta.url), { type: 'module' })
+    worker.onmessage = (e) => {
+      const { id, type, errors, durationMs, version, message } = e.data
+      const resolver = pending.get(id)
+      if (!resolver) return
+      pending.delete(id)
+      if (type === 'error') {
+        resolver.reject(new Error(message || 'Worker error'))
+      } else if (type === 'result') {
+        resolver.resolve({ errors, durationMs })
+      } else if (type === 'version') {
+        resolver.resolve(version ?? '')
+      }
+    }
+    worker.onerror = (e) => {
+      for (const [, { reject }] of pending) {
+        reject(new Error(e.message || 'Worker error'))
+      }
+      pending.clear()
+    }
+  }
+  return worker
+}
+
+function sendToWorker(type, payload = {}) {
+  return new Promise((resolve, reject) => {
+    const id = 'msg_' + (++nextId)
+    pending.set(id, { resolve, reject })
+    getWorker().postMessage({ id, type, libBase: LIB_BASE, ...payload })
+  })
+}
 
 export const validationOptions = {
     "LIBSBML_CAT_GENERAL_CONSISTENCY": true,
@@ -16,69 +52,16 @@ export const validationOptions = {
     "LIBSBML_CAT_STRICT_UNITS_CONSISTENCY": false,
 };
 
-
-async function loadValidatorFactory() {
-  const res = await fetch(LIB_BASE + 'sbml_validator.js')
-  if (!res.ok) throw new Error('Failed to load SBML validator script.')
-  let scriptText = await res.text()
-  scriptText = scriptText.replace('var ENVIRONMENT_IS_NODE=true', 'var ENVIRONMENT_IS_NODE=false')
-  const module = { exports: {} }
-  const exports = module.exports
-  const fn = new Function('module', 'exports', scriptText + '\nreturn module.exports.default || module.exports;')
-  const createCpsModule = fn(module, exports)
-  if (typeof createCpsModule !== 'function') {
-    throw new Error('SBML validator script did not export createCpsModule. Check that the script loads correctly.')
-  }
-  return createCpsModule
-}
-
-function getModule() {
-  if (modulePromise) return modulePromise
-  modulePromise = loadValidatorFactory()
-    .then(createCpsModule =>
-      createCpsModule({
-        locateFile(path) {
-          return LIB_BASE + path
-        }
-      })
-    )
-    .then(m => (m && typeof m.then === 'function' ? m : Promise.resolve(m)))
-  return modulePromise
-}
-
-function normalizeErrors(raw) {
-  if (Array.isArray(raw)) return raw
-  if (raw && typeof raw.errors === 'object' && Array.isArray(raw.errors)) return raw.errors
-  if (raw && typeof raw === 'object' && raw !== null) return [raw]
-  return []
-}
-
 /**
- * Validate SBML string. Loads the Emscripten module on first call.
+ * Validate SBML string. Runs in a Web Worker so the main thread stays responsive.
  * @param {string} sbmlString - UTF-8 SBML document string
  * @returns {Promise<{ errors: Array<{ line?: number, column?: number, message: string, severity?: string, category?: string, errorId?: number, package?: string }>, durationMs: number }>}
  */
 export async function validate(sbmlString) {
-  const start = performance.now()
-  const mod = await getModule()
-  const validateSBMLString = mod.validateSBMLString
-  if (typeof validateSBMLString !== 'function') {
-    throw new Error('Validator module does not expose validateSBMLString')
-  }
-  const raw = validateSBMLString(sbmlString, JSON.stringify(validationOptions))
-  const durationMs = performance.now() - start
-  let errors = raw
-  if (typeof raw === 'string') {
-    try {
-      errors = JSON.parse(raw)
-    } catch {
-      errors = [{ message: raw, severity: 'error' }]
-    }
-  }
-  return {
-    errors: normalizeErrors(errors),
-    durationMs
-  }
+  return sendToWorker('validate', {
+    sbmlString,
+    options: validationOptions
+  })
 }
 
 /**
@@ -86,9 +69,5 @@ export async function validate(sbmlString) {
  * @returns {Promise<string>} Version string, or empty string if not available
  */
 export async function getLibSBMLVersion() {
-  const mod = await getModule()
-  const fn = mod.getLibSBMLVersion
-  if (typeof fn !== 'function') return ''
-  const v = fn()
-  return v != null ? 'libSBML ' + String(v) : ''
+  return sendToWorker('getVersion')
 }
