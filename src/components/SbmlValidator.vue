@@ -196,9 +196,31 @@
             </div>
           </div>
         </div>
+        <div v-if="filteredErrors.length > ERRORS_PER_PAGE" class="pagination-bar">
+          <span class="pagination-label">{{ paginationLabel }}</span>
+          <div class="pagination-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary btn-pagination"
+              :disabled="errorPage <= 1"
+              @click="errorPage = Math.max(1, errorPage - 1)"
+            >
+              Previous
+            </button>
+            <span class="pagination-page">Page {{ errorPage }} of {{ totalPages }}</span>
+            <button
+              type="button"
+              class="btn btn-secondary btn-pagination"
+              :disabled="errorPage >= totalPages"
+              @click="errorPage = Math.min(totalPages, errorPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
         <ol class="error-list">
-          <li v-for="(err, idx) in filteredErrors" :key="idx" class="error-item">
-            <span class="error-index">{{ idx + 1 }}.</span>
+          <li v-for="(err, idx) in paginatedErrors" :key="(errorPage - 1) * ERRORS_PER_PAGE + idx" class="error-item">
+            <span class="error-index">{{ (errorPage - 1) * ERRORS_PER_PAGE + idx + 1 }}.</span>
             <span
               class="severity-badge"
               :class="err.severity === 'warning' ? 'badge-warning' : 'badge-error'"
@@ -279,6 +301,9 @@ const hiddenCategories = ref([])
 const libVersion = ref('')
 const libVersionLoading = ref(true)
 const libVersionError = ref('')
+
+const ERRORS_PER_PAGE = 100
+const errorPage = ref(1)
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -372,6 +397,28 @@ const filteredErrors = computed(() => {
   })
 })
 
+const totalPages = computed(() => {
+  const n = filteredErrors.value.length
+  return n === 0 ? 1 : Math.ceil(n / ERRORS_PER_PAGE)
+})
+
+const paginatedErrors = computed(() => {
+  const list = filteredErrors.value
+  if (!list.length) return []
+  const start = (errorPage.value - 1) * ERRORS_PER_PAGE
+  return list.slice(start, start + ERRORS_PER_PAGE)
+})
+
+const paginationLabel = computed(() => {
+  const total = filteredErrors.value.length
+  if (total === 0) return ''
+  const start = (errorPage.value - 1) * ERRORS_PER_PAGE + 1
+  const end = Math.min(errorPage.value * ERRORS_PER_PAGE, total)
+  return total <= ERRORS_PER_PAGE
+    ? `Showing all ${total}`
+    : `Showing ${start}–${end} of ${total}`
+})
+
 const errorCountLabel = computed(() => {
   if (!result.value || !result.value.errors.length) return ''
   const n = result.value.errors.length
@@ -425,6 +472,10 @@ function snippetForError(err) {
 function onFilterDialogKeydown(e) {
   if (e.key === 'Escape') filterDialogOpen.value = false
 }
+
+watch(filteredErrors, () => {
+  errorPage.value = 1
+})
 
 watch(filterDialogOpen, (open) => {
   if (open) {
@@ -831,6 +882,37 @@ async function runValidation() {
 
 .btn-filter {
   margin-left: auto;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.pagination-label {
+  font-size: 13px;
+  color: #555;
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-pagination {
+  padding: 0.3rem 0.6rem;
+  font-size: 13px;
+}
+
+.pagination-page {
+  font-size: 13px;
+  color: #555;
 }
 
 .filter-dialog-overlay {
