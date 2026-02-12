@@ -499,6 +499,7 @@ async function runValidation() {
   background: #f5f5f5;
   cursor: pointer;
   font-size: 14px;
+  color: black;
 }
 
 .btn:disabled {
@@ -510,6 +511,10 @@ async function runValidation() {
   background: #0066cc;
   color: white;
   border-color: #0066cc;
+}
+
+.btn-secondary {
+  background: #fff;
 }
 
 .error-msg {
