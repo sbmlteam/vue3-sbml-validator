@@ -113,6 +113,11 @@
               </template>
             </span>
             <p class="error-message">{{ err.message }}</p>
+            <div v-if="err.category || err.errorId != null || err.package" class="error-meta">
+              <span v-if="err.category" class="error-meta-item">Category: {{ err.category }}</span>
+              <span v-if="err.errorId != null" class="error-meta-item">ID: {{ err.errorId }}</span>
+              <span v-if="err.package" class="error-meta-item">Package: {{ err.package }}</span>
+            </div>
             <div v-if="snippetForError(err)" class="error-snippet">
               {{ snippetForError(err) }}
             </div>
@@ -647,6 +652,19 @@ async function runValidation() {
   margin: 0.35rem 0 0 0;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.error-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  font-size: 12px;
+  color: #666;
+}
+
+.error-meta-item {
+  white-space: nowrap;
 }
 
 .error-snippet {

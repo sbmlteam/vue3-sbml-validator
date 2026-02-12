@@ -56,7 +56,7 @@ function normalizeErrors(raw) {
 /**
  * Validate SBML string. Loads the Emscripten module on first call.
  * @param {string} sbmlString - UTF-8 SBML document string
- * @returns {Promise<{ errors: Array<{ line?: number, column?: number, message: string, severity?: string }>, durationMs: number }>}
+ * @returns {Promise<{ errors: Array<{ line?: number, column?: number, message: string, severity?: string, category?: string, errorId?: number, package?: string }>, durationMs: number }>}
  */
 export async function validate(sbmlString) {
   const start = performance.now()
