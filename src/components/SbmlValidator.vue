@@ -538,6 +538,7 @@ async function onDrop(ev) {
   const file = Array.from(files).find(isAcceptableFile) ?? files[0]
   const text = await readFileAsText(file)
   if (text == null) return
+  clearResults()
   modelTitle.value = file.name
   sbmlInput.value = text
   await nextTick()
@@ -560,6 +561,7 @@ function triggerUpload() {
 function onFileSelect(ev) {
   const file = ev.target.files?.[0]
   if (!file) return
+  clearResults()
   modelTitle.value = file.name
   const reader = new FileReader()
   reader.onload = () => {
@@ -598,15 +600,21 @@ function resetFilters() {
   hiddenCategories.value = []
 }
 
+function clearResults() {
+  result.value = null
+  validatedDocument.value = ''
+  loadError.value = ''
+  validationError.value = ''
+  errorPage.value = 1
+  hiddenPackages.value = []
+  hiddenCategories.value = []
+}
+
 async function runValidation() {
   const input = sbmlInput.value.trim()
   if (!input) return
-  loadError.value = ''
-  validationError.value = ''
-  result.value = null
+  clearResults()
   validatedDocument.value = input
-  hiddenPackages.value = []
-  hiddenCategories.value = []
   validating.value = true
   await nextTick()
   await new Promise(r => { requestAnimationFrame(() => requestAnimationFrame(r)) })
