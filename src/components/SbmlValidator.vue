@@ -62,8 +62,13 @@
           :disabled="!canValidate"
           @click="runValidation"
         >
+          <span v-if="validating" class="spinner" aria-hidden="true" />
           {{ validateButtonLabel }}
         </button>
+      </div>
+      <div v-if="validating" class="validating-banner">
+        <span class="spinner" aria-hidden="true" />
+        <span>Validating… This may take a while for large models.</span>
       </div>
       <p v-if="loadError" class="error-msg">{{ loadError }}</p>
       <p v-if="validationError" class="error-msg">{{ validationError }}</p>
@@ -552,6 +557,9 @@ async function runValidation() {
   hiddenPackages.value = []
   hiddenCategories.value = []
   validating.value = true
+  await nextTick()
+  await new Promise(r => { requestAnimationFrame(() => requestAnimationFrame(r)) })
+  await new Promise(r => setTimeout(r, 0))
   try {
     result.value = await validateSbml(input)
   } catch (e) {
@@ -701,6 +709,44 @@ async function runValidation() {
   background: #0066cc;
   color: white;
   border-color: #0066cc;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.validating-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  background: #e8f4ff;
+  border: 1px solid #0066cc;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #004494;
+}
+
+.validating-banner .spinner {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 3px solid rgba(0, 102, 204, 0.3);
+  border-top-color: #0066cc;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .btn-secondary {
