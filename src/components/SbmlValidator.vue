@@ -252,7 +252,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, reactive, onMounted } from 'vue'
+import { ref, computed, nextTick, reactive, onMounted, watch, onUnmounted } from 'vue'
 import { validate as validateSbml, getLibSBMLVersion, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
 
 const validationOptions = reactive(validationOptionsRef)
@@ -416,6 +416,22 @@ function snippetForError(err) {
   const lineIndex = Math.max(0, Number(err.line) - 1)
   return lines[lineIndex] ?? ''
 }
+
+function onFilterDialogKeydown(e) {
+  if (e.key === 'Escape') filterDialogOpen.value = false
+}
+
+watch(filterDialogOpen, (open) => {
+  if (open) {
+    document.addEventListener('keydown', onFilterDialogKeydown)
+  } else {
+    document.removeEventListener('keydown', onFilterDialogKeydown)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onFilterDialogKeydown)
+})
 
 onMounted(async () => {
   libVersionLoading.value = true
