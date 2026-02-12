@@ -512,10 +512,6 @@ async function runValidation() {
   border-color: #0066cc;
 }
 
-.btn-secondary {
-  background: #fff;
-}
-
 .error-msg {
   color: #c00;
   margin-top: 0.5rem;
