@@ -49,7 +49,7 @@
         <input
           ref="fileInputRef"
           type="file"
-          accept=".xml,.sbml,text/xml,application/xml"
+          accept=".xml,.sbml,text/xml,application/xml,application/sbml+xml"
           class="file-input"
           @change="onFileSelect"
         />
