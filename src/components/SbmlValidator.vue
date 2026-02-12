@@ -88,6 +88,108 @@
             <input v-model="showWarnings" type="checkbox" class="filter-warnings-checkbox" />
             Show warnings
           </label>
+          <button
+            type="button"
+            class="btn btn-filter"
+            title="Filter by package or category"
+            @click="filterDialogOpen = true"
+          >
+            Filter
+          </button>
+        </div>
+        <div v-show="filterDialogOpen" class="filter-dialog-overlay" @click.self="filterDialogOpen = false">
+          <div class="filter-dialog-inner" role="dialog" aria-modal="true" aria-labelledby="filter-dialog-title">
+            <h4 id="filter-dialog-title" class="filter-dialog-title">Filter errors</h4>
+            <p class="filter-dialog-hint">Remove packages or categories to hide those errors from the list.</p>
+            <div v-if="visiblePackages.length > 0" class="filter-section">
+              <h5 class="filter-section-title">Packages</h5>
+              <div class="filter-chips">
+                <span
+                  v-for="pkg in visiblePackages"
+                  :key="'pkg-' + pkg"
+                  class="filter-chip"
+                >
+                  {{ pkg }}
+                  <button
+                    type="button"
+                    class="filter-chip-remove"
+                    :aria-label="'Hide ' + pkg + ' errors'"
+                    @click="hidePackage(pkg)"
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            </div>
+            <div v-if="visibleCategories.length > 0" class="filter-section">
+              <h5 class="filter-section-title">Categories</h5>
+              <div class="filter-chips">
+                <span
+                  v-for="cat in visibleCategories"
+                  :key="'cat-' + cat"
+                  class="filter-chip"
+                >
+                  {{ cat }}
+                  <button
+                    type="button"
+                    class="filter-chip-remove"
+                    :aria-label="'Hide ' + cat + ' errors'"
+                    @click="hideCategory(cat)"
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            </div>
+            <div v-if="hiddenPackages.length > 0 || hiddenCategories.length > 0" class="filter-section filter-section-hidden">
+              <h5 class="filter-section-title">Hidden (click to restore)</h5>
+              <div class="filter-chips">
+                <span
+                  v-for="pkg in hiddenPackages"
+                  :key="'hidden-pkg-' + pkg"
+                  class="filter-chip filter-chip-hidden"
+                >
+                  {{ pkg }}
+                  <button
+                    type="button"
+                    class="filter-chip-restore"
+                    :aria-label="'Restore ' + pkg + ' errors'"
+                    @click="restorePackage(pkg)"
+                  >
+                    +
+                  </button>
+                </span>
+                <span
+                  v-for="cat in hiddenCategories"
+                  :key="'hidden-cat-' + cat"
+                  class="filter-chip filter-chip-hidden"
+                >
+                  {{ cat }}
+                  <button
+                    type="button"
+                    class="filter-chip-restore"
+                    :aria-label="'Restore ' + cat + ' errors'"
+                    @click="restoreCategory(cat)"
+                  >
+                    +
+                  </button>
+                </span>
+              </div>
+            </div>
+            <div class="filter-dialog-actions">
+              <button
+                v-if="hiddenPackages.length > 0 || hiddenCategories.length > 0"
+                type="button"
+                class="btn btn-secondary"
+                @click="resetFilters"
+              >
+                Reset filters
+              </button>
+              <button type="button" class="btn btn-primary" @click="filterDialogOpen = false">
+                Close
+              </button>
+            </div>
+          </div>
         </div>
         <ol class="error-list">
           <li v-for="(err, idx) in filteredErrors" :key="idx" class="error-item">
@@ -166,6 +268,9 @@ const validating = ref(false)
 const result = ref(null)
 const validatedDocument = ref('')
 const showWarnings = ref(true)
+const filterDialogOpen = ref(false)
+const hiddenPackages = ref([])
+const hiddenCategories = ref([])
 const libVersion = ref('')
 const libVersionLoading = ref(true)
 const libVersionError = ref('')
@@ -219,10 +324,47 @@ const hasWarningsInResult = computed(() => {
   return result.value.errors.some(e => (e.severity || 'error') === 'warning')
 })
 
+const allPackages = computed(() => {
+  if (!result.value || !result.value.errors.length) return []
+  const set = new Set()
+  for (const e of result.value.errors) {
+    if (e.package) set.add(e.package)
+  }
+  return [...set].sort()
+})
+
+const allCategories = computed(() => {
+  if (!result.value || !result.value.errors.length) return []
+  const set = new Set()
+  for (const e of result.value.errors) {
+    if (e.category) set.add(e.category)
+  }
+  return [...set].sort()
+})
+
+const visiblePackages = computed(() => {
+  const hidden = new Set(hiddenPackages.value)
+  return allPackages.value.filter(p => !hidden.has(p))
+})
+
+const visibleCategories = computed(() => {
+  const hidden = new Set(hiddenCategories.value)
+  return allCategories.value.filter(c => !hidden.has(c))
+})
+
 const filteredErrors = computed(() => {
   if (!result.value || !result.value.errors.length) return []
-  if (showWarnings.value) return result.value.errors
-  return result.value.errors.filter(e => (e.severity || 'error') !== 'warning')
+  let list = result.value.errors
+  if (!showWarnings.value) {
+    list = list.filter(e => (e.severity || 'error') !== 'warning')
+  }
+  const hiddenPkg = new Set(hiddenPackages.value)
+  const hiddenCat = new Set(hiddenCategories.value)
+  return list.filter(e => {
+    if (e.package && hiddenPkg.has(e.package)) return false
+    if (e.category && hiddenCat.has(e.category)) return false
+    return true
+  })
 })
 
 const errorCountLabel = computed(() => {
@@ -255,8 +397,8 @@ const documentLines = computed(() => {
 
 const errorLineSet = computed(() => {
   const set = new Set()
-  if (!result.value || !result.value.errors.length) return set
-  for (const e of result.value.errors) {
+  if (!filteredErrors.value.length) return set
+  for (const e of filteredErrors.value) {
     if (e.line != null) set.add(Number(e.line))
   }
   return set
@@ -359,6 +501,31 @@ function onTextareaInput() {
   modelTitle.value = 'Pasted SBML'
 }
 
+function hidePackage(pkg) {
+  if (!hiddenPackages.value.includes(pkg)) {
+    hiddenPackages.value = [...hiddenPackages.value, pkg]
+  }
+}
+
+function hideCategory(cat) {
+  if (!hiddenCategories.value.includes(cat)) {
+    hiddenCategories.value = [...hiddenCategories.value, cat]
+  }
+}
+
+function restorePackage(pkg) {
+  hiddenPackages.value = hiddenPackages.value.filter(p => p !== pkg)
+}
+
+function restoreCategory(cat) {
+  hiddenCategories.value = hiddenCategories.value.filter(c => c !== cat)
+}
+
+function resetFilters() {
+  hiddenPackages.value = []
+  hiddenCategories.value = []
+}
+
 async function runValidation() {
   const input = sbmlInput.value.trim()
   if (!input) return
@@ -366,6 +533,8 @@ async function runValidation() {
   validationError.value = ''
   result.value = null
   validatedDocument.value = input
+  hiddenPackages.value = []
+  hiddenCategories.value = []
   validating.value = true
   try {
     result.value = await validateSbml(input)
@@ -596,6 +765,105 @@ async function runValidation() {
 
 .filter-warnings-checkbox {
   cursor: pointer;
+}
+
+.btn-filter {
+  margin-left: auto;
+}
+
+.filter-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.filter-dialog-inner {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  max-width: 90vw;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.filter-dialog-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.filter-dialog-hint {
+  margin: 0 0 1rem 0;
+  color: #555;
+  font-size: 13px;
+}
+
+.filter-section {
+  margin-bottom: 1rem;
+}
+
+.filter-section-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #e8e8e8;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.filter-chip-hidden {
+  background: #f0f0f0;
+  color: #888;
+}
+
+.filter-chip-remove,
+.filter-chip-restore {
+  padding: 0 0.2rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: #666;
+  border-radius: 2px;
+}
+
+.filter-chip-remove:hover,
+.filter-chip-restore:hover {
+  background: #ddd;
+  color: #333;
+}
+
+.filter-chip-restore {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.filter-dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
 .error-list {
