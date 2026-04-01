@@ -1,4 +1,7 @@
+
 <template>
+<router-link to="/help" class="help-link">Help &amp; Reference ↗</router-link>
+
   <div
     class="sbml-validator"
     :class="{ 'is-dragging': isDragging }"
