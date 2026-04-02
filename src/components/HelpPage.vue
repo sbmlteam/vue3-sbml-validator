@@ -146,12 +146,8 @@
         </p>
         <ul>
           <li>
-            <strong>SBML component consistency</strong> — rules about
+            <strong>General consistency</strong> — rules about
             permitted attributes and children on each SBML element.
-          </li>
-          <li>
-            <strong>General SBML conformance</strong> — document-level rules
-            such as namespace declarations and version compatibility.
           </li>
           <li>
             <strong>Identifier consistency</strong> — rules about unique and
@@ -166,8 +162,19 @@
             MathML expressions.
           </li>
           <li>
+            <strong>SBO consistency</strong> — validation of any embedded
+            SBO terms.
+          </li>
+          <li>
+            <strong>Overdetermined Model </strong> — check that the model is not overdetermined.
+          </li>
+          <li>
             <strong>Modelling practice</strong> — best-practice guidelines
             that are not strictly required but are strongly recommended.
+          </li>
+          <li>
+            <strong>Strict Units consistency</strong> — checks that units are
+            correctly defined and used throughout the model.
           </li>
         </ul>
       </section>
