@@ -66,7 +66,8 @@
           {{ validateButtonLabel }}
         </button>
         <button 
-        class="help-button" 
+        type="button"
+        class="btn btn-primary"
         @click="goToHelp">
         Help &amp; Reference
       </button>
@@ -282,7 +283,7 @@
     </section>
 
 <!-- <router-link to="/help" class="help-link">Help &amp; Reference ↗</router-link> -->
- 
+
     <footer class="status-footer">
       <span class="status-label">Library:</span>
       <span v-if="libVersionLoading" class="status-value">Loading…</span>
@@ -1171,17 +1172,4 @@ async function runValidation() {
   color: #c00;
 }
 
-.help-button {
-  padding: 0.4rem 1rem;
-  background: #4a90d9;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.help-button:hover {
-  background: #357abd;
-}
 </style>
