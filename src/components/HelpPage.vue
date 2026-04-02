@@ -12,7 +12,6 @@
       <ul>
         <li><a href="#paste">Paste SBML</a></li>
         <li><a href="#upload">Upload a File</a></li>
-        <li><a href="#url">Validate by URL</a></li>
         <li><a href="#results">Understanding Results</a></li>
         <li><a href="#severity">Severity Levels</a></li>
         <li><a href="#categories">Error Categories</a></li>
@@ -36,16 +35,6 @@
           Choose a <code>.xml</code> or <code>.sbml</code> file from your
           local machine. The file is read entirely in the browser — nothing is
           sent to a server. File size is limited only by your browser's memory.
-        </p>
-      </section>
-
-      <section id="url">
-        <h2>Validate by URL</h2>
-        <p>
-          Provide a publicly accessible URL pointing to an SBML document. The
-          validator will fetch the file and run the same checks as the other
-          options. Make sure the server hosting the file allows cross-origin
-          requests (CORS), otherwise the fetch will be blocked by your browser.
         </p>
       </section>
 
