@@ -94,8 +94,8 @@
             <tr>
               <td><code>package</code></td>
               <td>
-                The SBML package that defines the violated rule, e.g.
-                <code>core</code>, <code>fbc</code>, <code>qual</code>.
+                The SBML Level 3 package that defines the violated rule, e.g.
+                <code>core</code>, <code>fbc</code>, <code>qual</code>. Note packages do not apply to any levels of SBML below Level 3, so this field will be <code>core</code> for all errors in SBML Level 2 and below.
               </td>
             </tr>
           </tbody>
