@@ -1,7 +1,4 @@
-
 <template>
-<router-link to="/help" class="help-link">Help &amp; Reference ↗</router-link>
-
   <div
     class="sbml-validator"
     :class="{ 'is-dragging': isDragging }"
@@ -68,6 +65,11 @@
           <span v-if="validating" class="spinner" aria-hidden="true" />
           {{ validateButtonLabel }}
         </button>
+        <button 
+        class="help-button" 
+        @click="goToHelp">
+        Help &amp; Reference
+      </button>
       </div>
       <div v-if="validating" class="validating-banner">
         <span class="spinner" aria-hidden="true" />
@@ -279,6 +281,8 @@
       </template>
     </section>
 
+<!-- <router-link to="/help" class="help-link">Help &amp; Reference ↗</router-link> -->
+ 
     <footer class="status-footer">
       <span class="status-label">Library:</span>
       <span v-if="libVersionLoading" class="status-value">Loading…</span>
@@ -291,6 +295,7 @@
 <script setup>
 import { ref, computed, nextTick, reactive, onMounted, watch, onUnmounted } from 'vue'
 import { validate as validateSbml, getLibSBMLVersion, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
+import { useRouter } from 'vue-router'
 
 const validationOptions = reactive(validationOptionsRef)
 const optionsCollapsed = ref(true)
@@ -315,6 +320,9 @@ const libVersionError = ref('')
 
 const ERRORS_PER_PAGE = 100
 const errorPage = ref(1)
+
+const router = useRouter()
+const goToHelp = () => router.push('/help')
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -1161,5 +1169,19 @@ async function runValidation() {
 
 .status-value.status-error {
   color: #c00;
+}
+
+.help-button {
+  padding: 0.4rem 1rem;
+  background: #4a90d9;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.help-button:hover {
+  background: #357abd;
 }
 </style>
