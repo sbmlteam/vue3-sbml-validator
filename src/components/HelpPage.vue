@@ -1,4 +1,5 @@
 <template>
+
   <div class="help-page">
     <header class="help-header">
       <h1>SBML Validation — Help &amp; Reference</h1>
@@ -14,7 +15,26 @@
         <li><a href="#upload">Upload a File</a></li>
         <li><a href="#results">Understanding Results</a></li>
         <li><a href="#severity">Severity Levels</a></li>
-        <li><a href="#categories">Error Categories</a></li>
+        <li class="toc-expandable">
+          <button
+            class="toc-expand-btn"
+            :aria-expanded="categoriesExpanded"
+            @click="categoriesExpanded = !categoriesExpanded"
+          >
+            <span class="toc-expand-icon" :class="{ expanded: categoriesExpanded }">▸</span>
+            Error Categories
+          </button>
+          <ul v-show="categoriesExpanded" class="toc-sub">
+            <li><a href="#general-conformance">General Consistency</a></li>
+            <li><a href="#identifier-consistency">Identifier Consistency</a></li>
+            <li><a href="#units-consistency">Units Consistency</a></li>
+            <li><a href="#mathml-consistency">MathML Consistency</a></li>
+            <li><a href="#sbo-consistency">SBO Consistency</a></li>
+            <li><a href="#overdetermined-model">Overdetermined Model</a></li>
+            <li><a href="#modelling-practice">Modelling Practice</a></li>
+            <li><a href="#strict-units-consistency">Strict Units Consistency</a></li>
+          </ul>
+        </li>
       </ul>
     </nav>
 
@@ -75,27 +95,23 @@
               <td><code>category</code></td>
               <td>
                 The rule group the error belongs to. See
-                <a href="#categories">Error Categories</a>.
+                <a href="#error-categories">Error Categories</a> below.
               </td>
             </tr>
             <tr>
               <td><code>errorId</code></td>
               <td>
-                Numeric identifier from the libSBML error table. You can look
-                up any ID in the
-                <a
-                  href="[sbml.org](https://sbml.org/software/libsbml/libsbml-docs/api/libsbml-error-codes.html)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >libSBML error code reference</a
-                >.
+                Numeric identifier from the libSBML error table.
               </td>
             </tr>
             <tr>
               <td><code>package</code></td>
               <td>
                 The SBML Level 3 package that defines the violated rule, e.g.
-                <code>core</code>, <code>fbc</code>, <code>qual</code>. Note packages do not apply to any levels of SBML below Level 3, so this field will be <code>core</code> for all errors in SBML Level 2 and below.
+                <code>core</code>, <code>fbc</code>, <code>qual</code>. Note
+                packages do not apply to any levels of SBML below Level 3, so
+                this field will be <code>core</code> for all errors in SBML
+                Level 2 and below.
               </td>
             </tr>
           </tbody>
@@ -126,46 +142,178 @@
           </li>
         </ul>
       </section>
-
-      <section id="categories">
+      <section id="error-categories">
         <h2>Error Categories</h2>
         <p>
-          Errors are grouped into categories that reflect where in the SBML
-          specification the violated rule lives:
+          Each error is assigned to a category that indicates the general type
+          of rule that was violated. These categories are part of the
+          official SBML specification and are listed as an appendix in each specification.
         </p>
-        <ul>
-          <li>
-            <strong>General consistency</strong> — rules about
-            permitted attributes and children on each SBML element.
-          </li>
-          <li>
-            <strong>Identifier consistency</strong> — rules about unique and
-            valid <code>id</code> / <code>metaid</code> values.
-          </li>
-          <li>
-            <strong>Units consistency</strong> — checks that units are
-            correctly defined and used throughout the model.
-          </li>
-          <li>
-            <strong>MathML consistency</strong> — validation of any embedded
-            MathML expressions.
-          </li>
-          <li>
-            <strong>SBO consistency</strong> — validation of any embedded
-            SBO terms.
-          </li>
-          <li>
-            <strong>Overdetermined Model </strong> — check that the model is not overdetermined.
-          </li>
-          <li>
-            <strong>Modelling practice</strong> — best-practice guidelines
-            that are not strictly required but are strongly recommended.
-          </li>
-          <li>
-            <strong>Strict Units consistency</strong> — checks that units are
-            correctly defined and used throughout the model.
-          </li>
-        </ul>
+
+        <section id="general-conformance">
+          <h3>General Consistency</h3>
+          <p>
+            Rules about permitted attributes and child elements on each SBML
+            component. Violations here mean an element has an attribute it is not allowed to have, is missing a required attribute, is missing a required child element or contains child elements that are not valid for that component type.
+          </p>
+          <h4>Example</h4>
+          <p>
+            Rule 20404:      
+            If a <code>model</code> defines any <code>species</code>, then the <code>model</code> must also define at least one <code>compartment</code>. This is an implication of the fact that the <code>compartment</code> attribute on the <code>species</code> element is not optional. 
+          </p>
+          <div class="custom-box-pre box-green">
+            <div class="box-header">
+              <span class="tick">✓</span>
+              Valid SBML snippet
+            </div>
+            <pre>
+              <code>
+                &lt;sbml level="2" version="2"&gt;
+                  &lt;model id="m1"&gt;
+                    &lt;listOfSpecies&gt;
+                      &lt;species id="s1" compartment="c1" /&gt;
+                    &lt;/listOfSpecies&gt;
+                    &lt;listOfCompartments&gt;
+                      &lt;compartment id="c1" /&gt;
+                    &lt;/listOfCompartments&gt;
+                  &lt;/model&gt;
+                &lt;/sbml&gt;
+              </code>
+            </pre>
+          </div>
+
+          <div class="custom-box-pre box-red">
+            <div class="box-header">
+              <span class="cross">✗</span>
+              Invalid SBML snippet
+            </div>
+            <pre>
+              <code>
+                &lt;sbml level="2" version="2"&gt;
+                  &lt;model id="m1"&gt;
+                    &lt;listOfSpecies&gt;
+                      &lt;species id="s1" compartment="c1" /&gt;
+                    &lt;/listOfSpecies&gt;
+                  &lt;/model&gt;
+                &lt;/sbml&gt;
+              </code>
+            </pre>
+          </div>
+        </section>
+
+        <section id="identifier-consistency">
+          <h3>Identifier Consistency</h3>
+          <p>
+            Rules that ensure every <code>id</code> and <code>metaid</code> in
+            the document is unique and syntactically valid. References to those
+            identifiers (e.g. in reactions or rules) must also point to something that actually exists.
+          </p>
+          <h4>Example</h4>
+          <p>
+            Rule 10301:      
+            The value of the <code>id</code> field on every instance of the following type of object in a model must be unique: <code>model</code>, <code>functionDefinition</code>, <code>compartmentType</code>, <code>compartment</code>, <code>speciesType</code>, <code>species</code>, <code>reaction</code>, <code>speciesReference</code>, <code>modifierSpeciesReference</code>, <code>event</code>, and model-wide <code>parameter</code>. Note that <code>unitDefinition</code> and parameters defined inside !ja <code>reaction</code>! are treated separately. 
+          </p>
+          <div class="custom-box-pre box-green">
+            <div class="box-header">
+              <span class="tick">✓</span>
+              Valid SBML snippet
+            </div>
+            <pre>
+              <code>
+                &lt;sbml level="2" version="2"&gt;
+                  &lt;model id="m1"&gt;
+                    &lt;listOfSpecies&gt;
+                      &lt;species id="s1" compartment="c1" /&gt;
+                    &lt;/listOfSpecies&gt;
+                    &lt;listOfCompartments&gt;
+                      &lt;compartment id="c1" /&gt;
+                    &lt;/listOfCompartments&gt;
+                  &lt;/model&gt;
+                &lt;/sbml&gt;
+              </code>
+            </pre>
+          </div>
+
+          <div class="custom-box-pre box-red">
+            <div class="box-header">
+              <span class="cross">✗</span>
+              Invalid SBML snippet
+            </div>
+            <pre>
+              <code>
+                &lt;sbml level="2" version="2"&gt;
+                  &lt;model id="m1"&gt;
+                    &lt;listOfSpecies&gt;
+                      &lt;species id="c1" compartment="c1" /&gt;
+                    &lt;/listOfSpecies&gt;
+                    &lt;listOfCompartments&gt;
+                      &lt;compartment id="c1" /&gt;
+                    &lt;/listOfCompartments&gt;
+                  &lt;/model&gt;
+                &lt;/sbml&gt;
+              </code>
+            </pre>
+          </div>
+        </section>
+
+        <section id="units-consistency">
+          <h3>Units Consistency</h3>
+          <p>
+            Checks that units are correctly defined and used consistently
+            throughout the model. These testsdo not take account of any numerical values and will allow units derive from the same base
+            dimensions to be used together (e.g. <code>mM</code> and <code>mole</code>), but will flag cases where units are incompatible (e.g. <code>second</code> and <code>mole</code>) or where unit definitions are malformed.
+          </p>
+        </section>
+
+        <section id="mathml-consistency">
+          <h3>MathML Consistency</h3>
+          <p>
+            Validation of any MathML expressions embedded in the document, such
+            as kinetic laws, assignment rules, or constraints. Errors here mean
+            the mathematics is either syntactically malformed or uses operators
+            and functions in ways not permitted by the SBML specification. For example, using a function that is not defined in SBML or applying an operator to an invalid number of arguments or arguments that have incompatible units would trigger an error in this category.:
+          </p>
+        </section>
+
+        <section id="sbo-consistency">
+          <h3>SBO Consistency</h3>
+          <p>
+            Validation of Systems Biology Ontology (SBO) terms attached to model
+            elements. Errors here mean a term is either not a valid SBO identifier
+            or has been applied to an element type for which it is not appropriate.
+          </p>
+        </section>
+
+        <section id="overdetermined-model">
+          <h3>Overdetermined Model</h3>
+          <p>
+            Checks that the model is not overdetermined — i.e. that the number of
+            independent equations does not exceed the number of unknowns. An
+            overdetermined model cannot be simulated and typically indicates
+            conflicting rules or constraints.
+          </p>
+        </section>
+
+        <section id="modelling-practice">
+          <h3>Modelling Practice</h3>
+          <p>
+            Best-practice guidelines that are not strictly required by the
+            specification but are strongly recommended. Following these
+            suggestions improves interoperability between tools and makes models
+            easier to understand and reproduce.
+          </p>
+        </section>
+
+        <section id="strict-units-consistency">
+          <h3>Strict Units Consistency</h3>
+          <p>
+            A stricter form of units checking that goes beyond the standard units
+            consistency rules. This includes cases where units can be inferred but
+            are inconsistent, or where unit information is missing entirely. Models
+            passing strict units checks are more likely to be correctly interpreted
+            by simulation tools.
+          </p>
+        </section>
       </section>
     </main>
 
@@ -176,7 +324,9 @@
 </template>
 
 <script setup>
-// No logic needed — this is a purely static page.
+import { ref } from 'vue'
+
+const categoriesExpanded = ref(false)
 </script>
 
 <style scoped>
@@ -226,6 +376,49 @@
 
 .toc li {
   margin: 0.3rem 0;
+}
+
+.toc-expandable {
+  list-style: none;
+  margin-left: -1.2rem;
+}
+
+.toc-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: #4a90d9;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.toc-expand-btn:hover {
+  text-decoration: underline;
+}
+
+.toc-expand-icon {
+  display: inline-block;
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  color: #4a90d9;
+}
+
+.toc-expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.toc-sub {
+  margin-top: 0.25rem;
+  padding-left: 1.4rem;
+  border-left: 2px solid #d0e3f5;
+}
+
+.toc-sub li {
+  margin: 0.2rem 0;
 }
 
 main section {
@@ -303,4 +496,54 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+
+.custom-box {
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 2px solid;
+  font-family: Arial, sans-serif;
+}
+
+.custom-box pre {
+  margin: 0;
+  font-family: Consolas, monospace;
+  background: rgba(0,0,0,0.05);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.box-header {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.box-header .tick {
+  color: #2ecc71;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.box-header .cross {
+  color: #e74c3c;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.box-green {
+  background-color: #e6f9e6;
+  border-color: #2ecc71;
+  color: #1e7e34;
+}
+
+.box-red {
+  background-color: #fdecea;
+  border-color: #e74c3c;
+  color: #a94442;
+}
+
 </style>

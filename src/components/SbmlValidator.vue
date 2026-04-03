@@ -66,11 +66,12 @@
           {{ validateButtonLabel }}
         </button>
         <button 
-        type="button"
-        class="btn btn-primary"
-        @click="goToHelp">
+          type="button"
+          class="btn btn-primary"
+          @click="goToHelp"
+        >
         Help &amp; Reference
-      </button>
+        </button>
       </div>
       <div v-if="validating" class="validating-banner">
         <span class="spinner" aria-hidden="true" />
@@ -281,8 +282,6 @@
       </div>
       </template>
     </section>
-
-<!-- <router-link to="/help" class="help-link">Help &amp; Reference ↗</router-link> -->
 
     <footer class="status-footer">
       <span class="status-label">Library:</span>
@@ -629,6 +628,21 @@ function clearResults() {
   hiddenPackages.value = []
   hiddenCategories.value = []
 }
+
+function categoryLink(category) {
+  const map = {
+    'General Consistency':        '/help#general-consistency',
+    'Identifier Consistency':     '/help#identifier-consistency',
+    'Units Consistency':          '/help#units-consistency',
+    'MathML Consistency':         '/help#mathml-consistency',
+    'SBO Consistency':            '/help#sbo-consistency',
+    'Overdetermined Model ':      '/help#overdetermined-model',
+    'Modelling Practice':         '/help#modelling-practice',
+    'Strict Units Consistency':   '/help#strict-units-consistency',
+  }
+  return map[category] ?? '/help'
+}
+
 
 async function runValidation() {
   const input = sbmlInput.value.trim()
@@ -1170,6 +1184,15 @@ async function runValidation() {
 
 .status-value.status-error {
   color: #c00;
+}
+
+.category-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.category-link:hover {
+  text-decoration: underline;
 }
 
 </style>
