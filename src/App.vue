@@ -1,9 +1,6 @@
 <!-- src/App.vue -->
 <template>
   <router-view />
-  <div class="app">
-    <ValidatorApp />
-  </div>
 </template>
 
 <script setup>

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import ValidatorApp from '../components/SbmlValidator.vue'      // or wherever your main validator lives
+import ValidatorApp from '../components/SbmlValidator.vue'  
 import HelpPage from '../components/HelpPage.vue'
 
 const routes = [
@@ -8,6 +8,6 @@ const routes = [
 ]
 
 export default createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/vue3-sbml-validator/'),
   routes,
 })

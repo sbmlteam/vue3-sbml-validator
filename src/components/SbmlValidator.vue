@@ -67,7 +67,8 @@
         </button>
         <button 
           type="button"
-          class="btn btn-primary"
+          class="btn btn-help"
+          :disabled="false"
           @click="goToHelp"
         >
         Help &amp; Reference
@@ -674,7 +675,7 @@ async function runValidation() {
 .sbml-validator {
   font-family: system-ui, sans-serif;
   font-size: 14px;
-  position: relative;
+  position: centeredrelative;
   transition: outline 0.15s ease, background 0.15s ease;
 }
 
@@ -848,6 +849,17 @@ async function runValidation() {
 .btn-secondary {
   background: #fff;
 }
+
+.btn-help {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+
+.btn-help:hover {
+  background: #1b5e20;
+}
+
 
 .error-msg {
   color: #c00;
