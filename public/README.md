@@ -1,4 +1,4 @@
-<h2> vue3-sbml-validate/public\C:\Development\SBML\vue3-sbml-validator\public\README.md<h2>
+<h2> vue3-sbml-validate\public\README.md<h2>
 <details>
 
 <summary>

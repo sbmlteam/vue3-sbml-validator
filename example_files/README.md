@@ -1,4 +1,4 @@
-<h2> vue3-sbml-validate/example_files\C:\Development\SBML\vue3-sbml-validator\example_files\README.md<h2>
+<h2> vue3-sbml-validate\example_files\README.md<h2>
 
 
 _No subdirectories_

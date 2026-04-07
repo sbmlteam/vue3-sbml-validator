@@ -1,4 +1,4 @@
-<h2> vue3-sbml-validate/public/lib\C:\Development\SBML\vue3-sbml-validator\public\lib\README.md<h2>
+<h2> vue3-sbml-validate\public\lib\README.md<h2>
 
 
 _No subdirectories_
