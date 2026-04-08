@@ -4,7 +4,7 @@ import HelpPage from '../components/HelpPage.vue'
 
 const routes = [
   { path: '/',     component: ValidatorApp },
-  { path: '/help', component: HelpPage },
+  { path: './help', component: HelpPage },
 ]
 
 export default createRouter({

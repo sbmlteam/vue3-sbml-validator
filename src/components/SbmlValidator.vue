@@ -336,7 +336,7 @@ const ERRORS_PER_PAGE = 100
 const errorPage = ref(1)
 
 const router = useRouter()
-const goToHelp = () => router.push('/help')
+const goToHelp = () => router.push('./help')
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -659,16 +659,16 @@ function clearResults() {
 
 function categoryLink(category) {
   const map = {
-    'General Consistency':        '/help#general-conformance',
-    'Identifier Consistency':     '/help#identifier-consistency',
-    'Units Consistency':          '/help#units-consistency',
-    'MathML Consistency':         '/help#mathml-consistency',
-    'SBO Consistency':            '/help#sbo-consistency',
-    'Overdetermined Model':       '/help#overdetermined-model',
-    'Modelling Practice':         '/help#modelling-practice',
-    'Strict Units Consistency':   '/help#strict-units-consistency',
+    'General Consistency':        './help#general-conformance',
+    'Identifier Consistency':     './help#identifier-consistency',
+    'Units Consistency':          './help#units-consistency',
+    'MathML Consistency':         './help#mathml-consistency',
+    'SBO Consistency':            './help#sbo-consistency',
+    'Overdetermined Model':       './help#overdetermined-model',
+    'Modelling Practice':         './help#modelling-practice',
+    'Strict Units Consistency':   './help#strict-units-consistency',
   }
-  return map[category] ?? '/help'
+  return map[category] ?? './help'
 }
 
 
