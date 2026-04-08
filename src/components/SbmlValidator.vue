@@ -7,7 +7,17 @@
     @drop.prevent="onDrop"
   >
     <section class="input-section">
-      <label class="label">SBML document</label>
+      <div class="input-header">
+        <label class="label input-header-label">SBML document</label>
+        <button
+          type="button"
+          class="btn btn-help"
+          :disabled="false"
+          @click="goToHelp"
+        >
+          Help &amp; Reference
+        </button>
+      </div>
       <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
       <textarea
         v-model="sbmlInput"
@@ -74,15 +84,7 @@
         >
           <span v-if="validating" class="spinner" aria-hidden="true" />
           {{ validateButtonLabel }}
-        </button>
-        <button 
-          type="button"
-          class="btn btn-help"
-          :disabled="false"
-          @click="goToHelp"
-        >
-        Help &amp; Reference
-        </button>
+        </button>        
       </div>
       <div v-if="validating" class="validating-banner">
         <span class="spinner" aria-hidden="true" />

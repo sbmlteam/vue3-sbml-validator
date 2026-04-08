@@ -109,6 +109,17 @@
   margin-bottom: 0.25rem;
 }
 
+.input-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.input-header-label {
+  margin-bottom: 0;
+}
+
 .hint {
   color: #555;
   margin: 0 0 0.5rem 0;
