@@ -9,14 +9,9 @@
     <section class="input-section">
       <div class="input-header">
         <label class="label input-header-label">SBML document</label>
-        <button
-          type="button"
-          class="btn btn-help"
-          :disabled="false"
-          @click="goToHelp"
-        >
+        <router-link class="btn btn-help" :to="{ path: '/help' }">
           Help &amp; Reference
-        </button>
+        </router-link>
       </div>
       <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
       <textarea
@@ -51,16 +46,19 @@
                 class="option-checkbox"
               />
               <span class="option-text">{{ optionLabel(key) }}</span>
-              <a
-                class="option-help"
-                :href="optionHelpLink(key)"
-                :title="`View description for ${optionLabel(key)}`"
-                target="_blank"
-                aria-label="View option description"
-                @click.stop
-              >
-                ?
-              </a>
+              <router-link :to="optionHelpTo(key)" custom v-slot="{ href, navigate }">
+                <a
+                  class="option-help"
+                  :href="href"
+                  :title="`View description for ${optionLabel(key)}`"
+                  target="_blank"
+                  rel="noopener"
+                  aria-label="View option description"
+                  @click.stop="navigate"
+                >
+                  ?
+                </a>
+              </router-link>
             </label>
           </div>
         </div>
@@ -337,11 +335,10 @@ const errorPage = ref(1)
 
 const router = useRouter()
 
-function helpHref(hash = '') {
-  return router.resolve({ path: '/help', hash }).href
+function normalizeHash(hash) {
+  if (!hash) return ''
+  return hash.startsWith('#') ? hash : `#${hash}`
 }
-
-const goToHelp = () => router.push({ path: '/help' })
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -547,18 +544,18 @@ function optionLabel(key) {
     .replace(/\b\w/g, c => c.toUpperCase())
 }
 
-function optionHelpLink(key) {
+function optionHelpTo(key) {
   const map = {
-    LIBSBML_CAT_GENERAL_CONSISTENCY: '#general-conformance',
-    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: '#identifier-consistency',
-    LIBSBML_CAT_UNITS_CONSISTENCY: '#units-consistency',
-    LIBSBML_CAT_MATHML_CONSISTENCY: '#mathml-consistency',
-    LIBSBML_CAT_SBO_CONSISTENCY: '#sbo-consistency',
-    LIBSBML_CAT_OVERDETERMINED_MODEL: '#overdetermined-model',
-    LIBSBML_CAT_MODELING_PRACTICE: '#modelling-practice',
-    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: '#strict-units-consistency',
+    LIBSBML_CAT_GENERAL_CONSISTENCY: 'general-conformance',
+    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: 'identifier-consistency',
+    LIBSBML_CAT_UNITS_CONSISTENCY: 'units-consistency',
+    LIBSBML_CAT_MATHML_CONSISTENCY: 'mathml-consistency',
+    LIBSBML_CAT_SBO_CONSISTENCY: 'sbo-consistency',
+    LIBSBML_CAT_OVERDETERMINED_MODEL: 'overdetermined-model',
+    LIBSBML_CAT_MODELING_PRACTICE: 'modelling-practice',
+    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: 'strict-units-consistency',
   }
-  return helpHref(map[key] ?? '')
+  return { path: '/help', hash: normalizeHash(map[key]) }
 }
 
 function isAcceptableFile(file) {
@@ -664,16 +661,16 @@ function clearResults() {
 
 function categoryLink(category) {
   const map = {
-    'General Consistency':        '#general-conformance',
-    'Identifier Consistency':     '#identifier-consistency',
-    'Units Consistency':          '#units-consistency',
-    'MathML Consistency':         '#mathml-consistency',
-    'SBO Consistency':            '#sbo-consistency',
-    'Overdetermined Model':       '#overdetermined-model',
-    'Modelling Practice':         '#modelling-practice',
-    'Strict Units Consistency':   '#strict-units-consistency',
+    'General Consistency':        'general-conformance',
+    'Identifier Consistency':     'identifier-consistency',
+    'Units Consistency':          'units-consistency',
+    'MathML Consistency':         'mathml-consistency',
+    'SBO Consistency':            'sbo-consistency',
+    'Overdetermined Model':       'overdetermined-model',
+    'Modelling Practice':         'modelling-practice',
+    'Strict Units Consistency':   'strict-units-consistency',
   }
-  return helpHref(map[category] ?? '')
+  return { path: '/help', hash: normalizeHash(map[category]) }
 }
 
 

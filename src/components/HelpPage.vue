@@ -11,10 +11,10 @@
     <nav class="toc">
       <h2>Contents</h2>
       <ul>
-        <li><a href="#paste">Paste SBML</a></li>
-        <li><a href="#upload">Upload a File</a></li>
-        <li><a href="#results">Understanding Results</a></li>
-        <li><a href="#severity">Severity Levels</a></li>
+        <li><router-link :to="{ path: '/help', hash: '#paste' }">Paste SBML</router-link></li>
+        <li><router-link :to="{ path: '/help', hash: '#upload' }">Upload a File</router-link></li>
+        <li><router-link :to="{ path: '/help', hash: '#results' }">Understanding Results</router-link></li>
+        <li><router-link :to="{ path: '/help', hash: '#severity' }">Severity Levels</router-link></li>
         <li class="toc-expandable">
           <button
             class="toc-expand-btn"
@@ -25,14 +25,14 @@
             Error Categories
           </button>
           <ul v-show="categoriesExpanded" class="toc-sub">
-            <li><a href="#general-conformance">General Consistency</a></li>
-            <li><a href="#identifier-consistency">Identifier Consistency</a></li>
-            <li><a href="#units-consistency">Units Consistency</a></li>
-            <li><a href="#mathml-consistency">MathML Consistency</a></li>
-            <li><a href="#sbo-consistency">SBO Consistency</a></li>
-            <li><a href="#overdetermined-model">Overdetermined Model</a></li>
-            <li><a href="#modelling-practice">Modelling Practice</a></li>
-            <li><a href="#strict-units-consistency">Strict Units Consistency</a></li>
+            <li><router-link :to="{ path: '/help', hash: '#general-conformance' }">General Consistency</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#identifier-consistency' }">Identifier Consistency</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#units-consistency' }">Units Consistency</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#mathml-consistency' }">MathML Consistency</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#sbo-consistency' }">SBO Consistency</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#overdetermined-model' }">Overdetermined Model</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#modelling-practice' }">Modelling Practice</router-link></li>
+            <li><router-link :to="{ path: '/help', hash: '#strict-units-consistency' }">Strict Units Consistency</router-link></li>
           </ul>
         </li>
       </ul>
@@ -88,14 +88,14 @@
               <td><code>severity</code></td>
               <td>
                 How serious the issue is. See
-                <a href="#severity">Severity Levels</a> below.
+                <router-link :to="{ path: '/help', hash: '#severity' }">Severity Levels</router-link> below.
               </td>
             </tr>
             <tr>
               <td><code>category</code></td>
               <td>
                 The rule group the error belongs to. See
-                <a href="#error-categories">Error Categories</a> below.
+                <router-link :to="{ path: '/help', hash: '#error-categories' }">Error Categories</router-link> below.
               </td>
             </tr>
             <tr>
