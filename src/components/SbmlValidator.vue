@@ -336,7 +336,12 @@ const ERRORS_PER_PAGE = 100
 const errorPage = ref(1)
 
 const router = useRouter()
-const goToHelp = () => router.push('./help')
+
+function helpHref(hash = '') {
+  return router.resolve({ path: '/help', hash }).href
+}
+
+const goToHelp = () => router.push({ path: '/help' })
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -544,16 +549,16 @@ function optionLabel(key) {
 
 function optionHelpLink(key) {
   const map = {
-    LIBSBML_CAT_GENERAL_CONSISTENCY: './help#general-conformance',
-    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: './help#identifier-consistency',
-    LIBSBML_CAT_UNITS_CONSISTENCY: './help#units-consistency',
-    LIBSBML_CAT_MATHML_CONSISTENCY: './help#mathml-consistency',
-    LIBSBML_CAT_SBO_CONSISTENCY: './help#sbo-consistency',
-    LIBSBML_CAT_OVERDETERMINED_MODEL: './help#overdetermined-model',
-    LIBSBML_CAT_MODELING_PRACTICE: './help#modelling-practice',
-    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: './help#strict-units-consistency',
+    LIBSBML_CAT_GENERAL_CONSISTENCY: '#general-conformance',
+    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: '#identifier-consistency',
+    LIBSBML_CAT_UNITS_CONSISTENCY: '#units-consistency',
+    LIBSBML_CAT_MATHML_CONSISTENCY: '#mathml-consistency',
+    LIBSBML_CAT_SBO_CONSISTENCY: '#sbo-consistency',
+    LIBSBML_CAT_OVERDETERMINED_MODEL: '#overdetermined-model',
+    LIBSBML_CAT_MODELING_PRACTICE: '#modelling-practice',
+    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: '#strict-units-consistency',
   }
-  return map[key] ?? './help'
+  return helpHref(map[key] ?? '')
 }
 
 function isAcceptableFile(file) {
@@ -659,16 +664,16 @@ function clearResults() {
 
 function categoryLink(category) {
   const map = {
-    'General Consistency':        './help#general-conformance',
-    'Identifier Consistency':     './help#identifier-consistency',
-    'Units Consistency':          './help#units-consistency',
-    'MathML Consistency':         './help#mathml-consistency',
-    'SBO Consistency':            './help#sbo-consistency',
-    'Overdetermined Model':       './help#overdetermined-model',
-    'Modelling Practice':         './help#modelling-practice',
-    'Strict Units Consistency':   './help#strict-units-consistency',
+    'General Consistency':        '#general-conformance',
+    'Identifier Consistency':     '#identifier-consistency',
+    'Units Consistency':          '#units-consistency',
+    'MathML Consistency':         '#mathml-consistency',
+    'SBO Consistency':            '#sbo-consistency',
+    'Overdetermined Model':       '#overdetermined-model',
+    'Modelling Practice':         '#modelling-practice',
+    'Strict Units Consistency':   '#strict-units-consistency',
   }
-  return map[category] ?? './help'
+  return helpHref(map[category] ?? '')
 }
 
 
