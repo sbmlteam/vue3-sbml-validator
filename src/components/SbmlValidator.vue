@@ -41,6 +41,16 @@
                 class="option-checkbox"
               />
               <span class="option-text">{{ optionLabel(key) }}</span>
+              <a
+                class="option-help"
+                :href="optionHelpLink(key)"
+                :title="`View description for ${optionLabel(key)}`"
+                target="_blank"
+                aria-label="View option description"
+                @click.stop
+              >
+                ?
+              </a>
             </label>
           </div>
         </div>
@@ -530,6 +540,20 @@ function optionLabel(key) {
     .replace(/\b\w/g, c => c.toUpperCase())
 }
 
+function optionHelpLink(key) {
+  const map = {
+    LIBSBML_CAT_GENERAL_CONSISTENCY: './help#general-conformance',
+    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: './help#identifier-consistency',
+    LIBSBML_CAT_UNITS_CONSISTENCY: './help#units-consistency',
+    LIBSBML_CAT_MATHML_CONSISTENCY: './help#mathml-consistency',
+    LIBSBML_CAT_SBO_CONSISTENCY: './help#sbo-consistency',
+    LIBSBML_CAT_OVERDETERMINED_MODEL: './help#overdetermined-model',
+    LIBSBML_CAT_MODELING_PRACTICE: './help#modelling-practice',
+    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: './help#strict-units-consistency',
+  }
+  return map[key] ?? './help'
+}
+
 function isAcceptableFile(file) {
   if (!file || typeof file.name !== 'string') return false
   const name = file.name.toLowerCase()
@@ -633,12 +657,12 @@ function clearResults() {
 
 function categoryLink(category) {
   const map = {
-    'General Consistency':        '/help#general-consistency',
+    'General Consistency':        '/help#general-conformance',
     'Identifier Consistency':     '/help#identifier-consistency',
     'Units Consistency':          '/help#units-consistency',
     'MathML Consistency':         '/help#mathml-consistency',
     'SBO Consistency':            '/help#sbo-consistency',
-    'Overdetermined Model ':      '/help#overdetermined-model',
+    'Overdetermined Model':       '/help#overdetermined-model',
     'Modelling Practice':         '/help#modelling-practice',
     'Strict Units Consistency':   '/help#strict-units-consistency',
   }
