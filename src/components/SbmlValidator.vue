@@ -7,7 +7,17 @@
     @drop.prevent="onDrop"
   >
     <section class="input-section">
-      <label class="label">SBML document</label>
+      <div class="input-header">
+        <label class="label input-header-label">SBML document</label>
+        <button
+          type="button"
+          class="btn btn-help"
+          :disabled="false"
+          @click="goToHelp"
+        >
+          Help &amp; Reference
+        </button>
+      </div>
       <p class="hint">Paste SBML below, upload a file, or drop a file here.</p>
       <textarea
         v-model="sbmlInput"
@@ -41,6 +51,16 @@
                 class="option-checkbox"
               />
               <span class="option-text">{{ optionLabel(key) }}</span>
+              <a
+                class="option-help"
+                :href="optionHelpLink(key)"
+                :title="`View description for ${optionLabel(key)}`"
+                target="_blank"
+                aria-label="View option description"
+                @click.stop
+              >
+                ?
+              </a>
             </label>
           </div>
         </div>
@@ -64,7 +84,7 @@
         >
           <span v-if="validating" class="spinner" aria-hidden="true" />
           {{ validateButtonLabel }}
-        </button>
+        </button>        
       </div>
       <div v-if="validating" class="validating-banner">
         <span class="spinner" aria-hidden="true" />
@@ -288,6 +308,8 @@
 <script setup>
 import { ref, computed, nextTick, reactive, onMounted, watch, onUnmounted } from 'vue'
 import { validate as validateSbml, getLibSBMLVersion, validationOptions as validationOptionsRef } from '../lib/validatorAdapter.js'
+import { useRouter } from 'vue-router'
+import '../styles/sbmlValidator.css'
 
 const validationOptions = reactive(validationOptionsRef)
 const optionsCollapsed = ref(true)
@@ -312,6 +334,9 @@ const libVersionError = ref('')
 
 const ERRORS_PER_PAGE = 100
 const errorPage = ref(1)
+
+const router = useRouter()
+const goToHelp = () => router.push('/help')
 
 const canValidate = computed(() => {
   return sbmlInput.value.trim().length > 0 && !validating.value
@@ -517,6 +542,20 @@ function optionLabel(key) {
     .replace(/\b\w/g, c => c.toUpperCase())
 }
 
+function optionHelpLink(key) {
+  const map = {
+    LIBSBML_CAT_GENERAL_CONSISTENCY: './help#general-conformance',
+    LIBSBML_CAT_IDENTIFIER_CONSISTENCY: './help#identifier-consistency',
+    LIBSBML_CAT_UNITS_CONSISTENCY: './help#units-consistency',
+    LIBSBML_CAT_MATHML_CONSISTENCY: './help#mathml-consistency',
+    LIBSBML_CAT_SBO_CONSISTENCY: './help#sbo-consistency',
+    LIBSBML_CAT_OVERDETERMINED_MODEL: './help#overdetermined-model',
+    LIBSBML_CAT_MODELING_PRACTICE: './help#modelling-practice',
+    LIBSBML_CAT_STRICT_UNITS_CONSISTENCY: './help#strict-units-consistency',
+  }
+  return map[key] ?? './help'
+}
+
 function isAcceptableFile(file) {
   if (!file || typeof file.name !== 'string') return false
   const name = file.name.toLowerCase()
@@ -618,6 +657,21 @@ function clearResults() {
   hiddenCategories.value = []
 }
 
+function categoryLink(category) {
+  const map = {
+    'General Consistency':        '/help#general-conformance',
+    'Identifier Consistency':     '/help#identifier-consistency',
+    'Units Consistency':          '/help#units-consistency',
+    'MathML Consistency':         '/help#mathml-consistency',
+    'SBO Consistency':            '/help#sbo-consistency',
+    'Overdetermined Model':       '/help#overdetermined-model',
+    'Modelling Practice':         '/help#modelling-practice',
+    'Strict Units Consistency':   '/help#strict-units-consistency',
+  }
+  return map[category] ?? '/help'
+}
+
+
 async function runValidation() {
   const input = sbmlInput.value.trim()
   if (!input) return
@@ -643,520 +697,3 @@ async function runValidation() {
   }
 }
 </script>
-
-<style scoped>
-.sbml-validator {
-  font-family: system-ui, sans-serif;
-  font-size: 14px;
-  position: relative;
-  transition: outline 0.15s ease, background 0.15s ease;
-}
-
-.sbml-validator.is-dragging {
-  outline: 2px dashed #0066cc;
-  outline-offset: -2px;
-  background: #e6f2ff;
-}
-
-.options-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
-}
-
-.options-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  width: 100%;
-  padding: 0.25rem 0;
-  border: none;
-  background: none;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  color: inherit;
-}
-
-.options-toggle:hover {
-  color: #0066cc;
-}
-
-.options-toggle-icon {
-  display: inline-block;
-  transition: transform 0.2s ease;
-  font-size: 12px;
-  color: #666;
-}
-
-.options-toggle-icon.expanded {
-  transform: rotate(90deg);
-}
-
-.options-content {
-  margin-top: 0.5rem;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.5rem 1.5rem;
-  margin-top: 0.5rem;
-}
-
-.option-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
-  font-weight: normal;
-  user-select: none;
-}
-
-.option-checkbox {
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.option-text {
-  font-size: 13px;
-}
-
-.label {
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.hint {
-  color: #555;
-  margin: 0 0 0.5rem 0;
-}
-
-.textarea {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: ui-monospace, monospace;
-  font-size: 13px;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-.actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.file-input {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.btn {
-  padding: 0.4rem 0.75rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background: #f5f5f5;
-  cursor: pointer;
-  font-size: 14px;
-  color: black;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: #0066cc;
-  color: white;
-  border-color: #0066cc;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.validating-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  margin-top: 1rem;
-  background: #e8f4ff;
-  border: 1px solid #0066cc;
-  border-radius: 6px;
-  font-weight: 500;
-  color: #004494;
-}
-
-.validating-banner .spinner {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  border: 3px solid rgba(0, 102, 204, 0.3);
-  border-top-color: #0066cc;
-}
-
-.spinner {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.btn-secondary {
-  background: #fff;
-}
-
-.error-msg {
-  color: #c00;
-  margin-top: 0.5rem;
-}
-
-.results-section {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.results-heading {
-  font-size: 1.1rem;
-  margin: 0 0 0.25rem 0;
-}
-
-.model-title {
-  margin: 0 0 0.25rem 0;
-  color: #555;
-  font-size: 0.95rem;
-}
-
-.validation-time {
-  margin: 0 0 1rem 0;
-  color: #333;
-}
-
-.status-banner {
-  padding: 0.75rem 1rem;
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-}
-
-.status-invalid {
-  background: #c00;
-  color: white;
-}
-
-.status-valid {
-  background: #0a0;
-  color: white;
-}
-
-.status-warning {
-  background: #e68a00;
-  color: white;
-}
-
-.error-list-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.5rem;
-}
-
-.error-count {
-  font-size: 1rem;
-  margin: 0;
-}
-
-.filter-warnings-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  cursor: pointer;
-  font-weight: normal;
-  user-select: none;
-}
-
-.filter-warnings-checkbox {
-  cursor: pointer;
-}
-
-.btn-filter {
-  margin-left: auto;
-}
-
-.pagination-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
-}
-
-.pagination-label {
-  font-size: 13px;
-  color: #555;
-}
-
-.pagination-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.btn-pagination {
-  padding: 0.3rem 0.6rem;
-  font-size: 13px;
-}
-
-.pagination-page {
-  font-size: 13px;
-  color: #555;
-}
-
-.filter-dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.filter-dialog-inner {
-  background: white;
-  border-radius: 8px;
-  padding: 1.25rem;
-  max-width: 90vw;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.filter-dialog-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-}
-
-.filter-dialog-hint {
-  margin: 0 0 1rem 0;
-  color: #555;
-  font-size: 13px;
-}
-
-.filter-section {
-  margin-bottom: 1rem;
-}
-
-.filter-section-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  background: #e8e8e8;
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.filter-chip-hidden {
-  background: #f0f0f0;
-  color: #888;
-}
-
-.filter-chip-remove,
-.filter-chip-restore {
-  padding: 0 0.2rem;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  color: #666;
-  border-radius: 2px;
-}
-
-.filter-chip-remove:hover,
-.filter-chip-restore:hover {
-  background: #ddd;
-  color: #333;
-}
-
-.filter-chip-restore {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.filter-dialog-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-}
-
-.error-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1.5rem 0;
-}
-
-.error-item {
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
-}
-
-.error-index {
-  margin-right: 0.25rem;
-}
-
-.severity-badge {
-  display: inline-block;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-right: 0.5rem;
-}
-
-.badge-error {
-  background: #c00;
-  color: white;
-}
-
-.badge-warning {
-  background: #e68a00;
-  color: white;
-}
-
-.error-location {
-  font-weight: 600;
-}
-
-.error-location-link {
-  color: #0066cc;
-  text-decoration: none;
-  cursor: pointer;
-  border-bottom: 1px solid transparent;
-}
-
-.error-location-link:hover {
-  text-decoration: underline;
-}
-
-.error-message {
-  margin: 0.35rem 0 0 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.error-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.35rem;
-  font-size: 12px;
-  color: #666;
-}
-
-.error-meta-item {
-  white-space: nowrap;
-}
-
-.error-snippet {
-  margin-top: 0.35rem;
-  padding: 0.4rem 0.6rem;
-  background: #e8e8e8;
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  border-radius: 3px;
-  overflow-x: auto;
-}
-
-.document-listing-heading {
-  font-size: 1rem;
-  margin: 0 0 0.5rem 0;
-}
-
-.document-listing {
-  background: #f5f5f5;
-  padding: 0.5rem 0;
-  border-radius: 4px;
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  overflow-x: auto;
-}
-
-.document-line {
-  padding: 0.1rem 0.5rem;
-  white-space: pre;
-}
-
-.document-line.line-error {
-  background: #e0e0e0;
-}
-
-.line-num {
-  display: inline-block;
-  min-width: 2.5em;
-  margin-right: 0.5rem;
-  color: #666;
-  user-select: none;
-}
-
-.line-content {
-  white-space: pre;
-}
-
-.status-footer {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-  font-size: 13px;
-  color: #666;
-}
-
-.status-label {
-  font-weight: 600;
-  margin-right: 0.35rem;
-}
-
-.status-value.status-error {
-  color: #c00;
-}
-</style>
