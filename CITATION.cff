@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Bergmann"
+    given-names: "Frank"
+    orcid: "[orcid.org](https://orcid.org/0000-0000-0000-0000)"
+  - family-names: "Keating"
+    given-names: "Sarah"
+    orcid: "[orcid.org](https://orcid.org/0000-0002-3356-3542)"
+title: "Vue3-SBML-Validator"
+version: 1.0.0
+date-released: 2026-04-xx
