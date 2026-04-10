@@ -1,4 +1,7 @@
 <h2> vue3-sbml-validate\src\README.md<h2>
+
+This directory contains the files necessary to mount and view the application.
+
 <details>
 
 <summary>
@@ -7,6 +10,8 @@
 
 - [src\components](./components/README.md)
 - [src\lib](./lib/README.md)
+- [src\router](./router/README.md)
+- [src\styles](./styles/README.md)
 
 </details>
 
@@ -18,8 +23,8 @@
 
 | File Name | Type | Description |
 |----------|------|-------------|
-| App.vue | other | App |
-| main.js | code | Main |
+| App.vue | Vue | framework to build the application |
+| main.js | JavaScript | the main scripT to mount the application |
 
 </details>
 

@@ -71,3 +71,35 @@ specifying a couple of options. After validation the results would be displayed 
 
 ![Result](./docs/old_validator_result.png)
 
+
+<h2> vue3-sbml-validate\README.md<h2>
+<details>
+
+<summary>
+<h3>Subdirectories with links to the relevant README </h3> 
+</summary>
+
+- [\docs](./docs/README.md)
+- [\example_files](./example_files/README.md)
+- [\lib](./lib/README.md)
+- [\public](./public/README.md)
+- [\src](./src/README.md)
+
+</details>
+
+<details>
+
+<summary>
+<h3>Files </h3> 
+</summary>
+
+| File Name | Type | Description |
+|----------|------|-------------|
+| CITATION.cff | Citation File Format | citation file for this project |
+| LICENSE | - | License file for the application |
+| index.html | HTML | the main file for displaying the web page |
+| package.json | JSON | file for determining the package and any dependencies necessary |
+| vite.config.js | JavaScript | file necessary for giving the configuration to built this into the existing sbml.org structure |
+
+</details>
+

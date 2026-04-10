@@ -1,4 +1,8 @@
 <h2> vue3-sbml-validate\public\README.md<h2>
+
+This directory contains a single subdirectory and no files.
+
+-->Frank What is the purpose of this directory being here?
 <details>
 
 <summary>
