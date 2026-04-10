@@ -8,7 +8,6 @@
 - [\docs](./docs/README.md)
 - [\example_files](./example_files/README.md)
 - [\lib](./lib/README.md)
-- [\node_modules](./node_modules/README.md)
 - [\public](./public/README.md)
 - [\src](./src/README.md)
 
