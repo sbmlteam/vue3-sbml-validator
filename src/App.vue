@@ -1,11 +1,10 @@
+<!-- src/App.vue -->
 <template>
-  <div class="app">
-    <SbmlValidator />
-  </div>
+  <router-view />
 </template>
 
 <script setup>
-import SbmlValidator from './components/SbmlValidator.vue'
+import ValidatorApp from './components/SbmlValidator.vue'
 </script>
 
 <style>
